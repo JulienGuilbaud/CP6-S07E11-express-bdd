@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+  <h1>Liste des agences</h1>
+  <ul>
+    <% for (const agency of agencies) { %>
+      <li><a href="/agence/<%= agency.id %>"><%= agency.address %></a></li>
+    <% } %>
+  </ul>
+
+  <form action="/agence/creer">
+    <label>
+      Adresse
+      <input name="address" type="text">
+    </label>
+    <label>
+      Email
+      <input name="email" type="text">
+    </label>
+    <label>
+      Téléphone
+      <input name="phone_number" type="text">
+    </label>
+    <button>Valider</button>
+  </form>
+<%- include('partials/footer') %>

@@ -1,0 +1,5 @@
+USER: email, password, firstname, lastname
+RENT, 0N USER, 0N CAR: date_start, date_end
+CAR: code_car, brand, model, power, zero_to_100, max_speed, eco_class, price
+HAS, 0N AGENCY, 11 CAR
+AGENCY: email, address, phone_number

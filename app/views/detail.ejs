@@ -1,0 +1,6 @@
+<%- include('partials/header') %>
+  <h1><%= agency.address %></h1>
+  <p><a href="mailto:<%= agency.email %>"><%= agency.email %></a></p>
+  <p><a href="tel:<%= agency.phone_number %>"><%= agency.phone_number %></a></p>
+  <p><a href="/">Retour à la liste</a></p>
+<%- include('partials/footer') %>
