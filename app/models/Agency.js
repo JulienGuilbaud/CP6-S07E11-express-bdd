@@ -57,6 +57,23 @@ class Agency {
       throw new Error('Format d\'e-mail invalide.');
     }
   }
+     findById(id) {
+    const result = await client.query('SELECT * FROM agency WHERE id = $1', [id]);
+    if (result.rows.length > 0) {
+      return new Agency(result.rows[0]);
+    }
+    return null;
+  }
+
+   getAll() {
+    const result = await client.query('SELECT * FROM agency');
+    return result.rows.map(row => new Agency(row));
+  }
+
+  create() {
+    client.query('INSERT INTO agency (address, email, phone_number) VALUES ($1, $2, $3)',
+      [this.address, this.email, this.phone_number]);
+  }
 
   update() {
     client.query('UPDATE agency SET address = $1, email = $2, phone_number = $3 WHERE id = $4',
@@ -67,10 +84,6 @@ class Agency {
     client.query('DELETE FROM agency WHERE id = $1', [this.id]);
   }
 
-  create() {
-    client.query('INSERT INTO agency (address, email, phone_number) VALUES ($1, $2, $3)',
-      [this.address, this.email, this.phone_number]);
-  }
 }
 
 export default Agency;
