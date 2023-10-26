@@ -1,88 +1,71 @@
 import client from "../database.js";
 import Agency from "../models/Agency.js";
 
-
-const agencyController = {
-
-  list: async function(req, res) {
+const AgencyController = {
+  // Méthode pour créer une nouvelle agence
+  async createAgency(req, res) {
     try {
-      const result = await client.query('SELECT * FROM agency ORDER BY address;');
-      res.render('list', {
-        agencies: result.rows,
-      });
+      const agencyData = req.body; // Supposons que les données sont dans le corps de la requête
+      const newAgency = new Agency(agencyData);
+      await newAgency.create(); // Utilisez la méthode create de la classe Agency
+
+      return res.status(201).json({ message: 'Agence créée avec succès' });
     } catch (error) {
-      console.error(error);
-      res.status(500).render('error');
+      return res.status(500).json({ error: error.message });
     }
-  },
+  }
 
-  detail: async function(req, res, next) {
+  // Méthode pour mettre à jour les informations d'une agence
+  async updateAgency(req, res) {
     try {
-      const result = await client.query('SELECT * FROM agency WHERE id=$1', [req.params.id]);
-      if (result.rowCount > 0) {
-        res.render('detail', {
-          agency: result.rows[0],
-        });
+      const agencyData = req.body;
+      const agencyId = req.params.id; // Supposons que l'ID de l'agence est dans les paramètres de la requête
+      const agency = await Agency.findById(agencyId);
+
+      if (!agency) {
+        return res.status(404).json({ message: 'Agence non trouvée' });
       }
-      else {
-        next();
+
+      // Mettez à jour les propriétés de l'agence avec les nouvelles données
+      agency.address = agencyData.address;
+      agency.email = agencyData.email;
+      agency.phone_number = agencyData.phone_number;
+
+      await agency.update();
+
+      return res.status(200).json({ message: 'Agence mise à jour avec succès' });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Méthode pour supprimer une agence
+  async deleteAgency(req, res) {
+    try {
+      const agencyId = req.params.id;
+      const agency = await Agency.findById(agencyId);
+
+      if (!agency) {
+        return res.status(404).json({ message: 'Agence non trouvée' });
       }
+
+      await agency.delete();
+
+      return res.status(204).end();
     } catch (error) {
-      console.error(error);
-      res.status(500).render('error');
+      return res.status(500).json({ error: error.message });
     }
-  },
+  }
 
-  add: function(req, res) {
+  // Méthode pour récupérer toutes les agences
+  async getAllAgencies(req, res) {
     try {
-      // ça c'est bien pour créer un objet et potentiellement valider toutes les informations qu'il contient à l'aide des validateurs dans nos setters
-      const agency = new Agency(req.query);
-      // mais il faut ensuite enregistrer cet objet en bdd si on veut le retrouver plus tard
-      agency.create();
-      // quand c'est fait je retourne voir ma liste
-      res.redirect('/');
-    } catch(error) {
-      // prevoir un cas d'erreur
-    }
-  },
-  delete: async function(req, res) {
-    try {
-      const agencyId = req.params.id; // Récupérer l'ID de l'agence à supprimer depuis les paramètres de la requête
-      // Utiliser une requête SQL DELETE pour supprimer l'agence avec l'ID spécifié
-      await client.query('DELETE FROM agency WHERE id = $1', [agencyId]);
-      // Rediriger l'utilisateur vers la liste des agences après la suppression
-      res.redirect('/list');
+      const agencies = await Agency.getAll();
+      return res.status(200).json(agencies);
     } catch (error) {
-      console.error(error);
-      res.status(500).render('error');
-    },
-  update: async function(req, res) {
-    try {
-      const agencyId = req.params.id; // Récupérer l'ID de l'agence à mettre à jour depuis les paramètres de la requête
-      const newData = req.body; // Récupérer les nouvelles données de l'agence depuis le corps de la requête
-
-      // Utiliser une requête SQL UPDATE pour mettre à jour l'agence avec les nouvelles données
-      const updateQuery = `
-        UPDATE agency
-        SET email = $1, address = $2, phone_number = $3
-        WHERE id = $4;
-      `;
-
-      await client.query(updateQuery, [
-        newData.email,
-        newData.address,
-        newData.phone_number,
-        agencyId
-      ]);
-
-      // Rediriger l'utilisateur vers la liste des agences après la mise à jour
-      res.redirect('/list');
-    } catch (error) {
-      console.error(error);
-      res.status(500).render('error');
+      return res.status(500).json({ error: error.message });
     }
-  },
-
+  }
 };
 
-export default agencyController;
+export default AgencyController;
