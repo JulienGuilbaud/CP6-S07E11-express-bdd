@@ -44,7 +44,44 @@ const agencyController = {
     } catch(error) {
       // prevoir un cas d'erreur
     }
-  }
+  },
+  delete: async function(req, res) {
+    try {
+      const agencyId = req.params.id; // Récupérer l'ID de l'agence à supprimer depuis les paramètres de la requête
+      // Utiliser une requête SQL DELETE pour supprimer l'agence avec l'ID spécifié
+      await client.query('DELETE FROM agency WHERE id = $1', [agencyId]);
+      // Rediriger l'utilisateur vers la liste des agences après la suppression
+      res.redirect('/list');
+    } catch (error) {
+      console.error(error);
+      res.status(500).render('error');
+    },
+  update: async function(req, res) {
+    try {
+      const agencyId = req.params.id; // Récupérer l'ID de l'agence à mettre à jour depuis les paramètres de la requête
+      const newData = req.body; // Récupérer les nouvelles données de l'agence depuis le corps de la requête
+
+      // Utiliser une requête SQL UPDATE pour mettre à jour l'agence avec les nouvelles données
+      const updateQuery = `
+        UPDATE agency
+        SET email = $1, address = $2, phone_number = $3
+        WHERE id = $4;
+      `;
+
+      await client.query(updateQuery, [
+        newData.email,
+        newData.address,
+        newData.phone_number,
+        agencyId
+      ]);
+
+      // Rediriger l'utilisateur vers la liste des agences après la mise à jour
+      res.redirect('/list');
+    } catch (error) {
+      console.error(error);
+      res.status(500).render('error');
+    }
+  },
 
 };
 
