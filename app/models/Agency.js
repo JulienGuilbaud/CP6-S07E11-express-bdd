@@ -35,22 +35,41 @@ class Agency {
   }
 
   set address(value) {
-    // ici on pourrait une validation du format de l'adresse
-    this.#address = value;
+    if (/^[a-zA-Z0-9\s,'-]*$/.test(value)) {
+      this.#address = value;
+    } else {
+      throw new Error('Format d\'adresse invalide.');
+    }
   }
 
   set phone_number(value) {
-    // ici on pourrait une validation du format du téléphone
-    this.#phone_number = value;
+    if (/^[0-9+\s]*$/.test(value)) {
+      this.#phone_number = value;
+    } else {
+      throw new Error('Format de numéro de téléphone invalide.');
+    }
   }
 
   set email(value) {
-    // ici on pourrait une validation du format de l'email
-    this.#email = value;
+    if (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+      this.#email = value;
+    } else {
+      throw new Error('Format d\'e-mail invalide.');
+    }
+  }
+
+  update() {
+    client.query('UPDATE agency SET address = $1, email = $2, phone_number = $3 WHERE id = $4',
+      [this.address, this.email, this.phone_number, this.id]);
+  }
+
+  delete() {
+    client.query('DELETE FROM agency WHERE id = $1', [this.id]);
   }
 
   create() {
-    client.query('INSERT INTO agency (address, email, phone_number) VALUES ($1, $2, $3)', [this.address, this.email, this.phone_number]);
+    client.query('INSERT INTO agency (address, email, phone_number) VALUES ($1, $2, $3)',
+      [this.address, this.email, this.phone_number]);
   }
 }
 
